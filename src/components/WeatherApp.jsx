@@ -35,9 +35,9 @@ const WeatherApp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-teal-800 flex items-center justify-center p-5">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-teal-800 flex items-center justify-center p-5">
 
-      <div className="w-full max-w-[420px] min-h-[500px] p-8 sm:p-9 rounded-3xl text-white bg-white/10 border border-white/20 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
+      <div className="w-full max-w-420px min-h-500px p-8 sm:p-9 rounded-3xl text-white bg-white/10 border border-white/20 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
 
         {/* Title */}
         <h1 className="text-center text-3xl font-bold tracking-wide text-teal-300 mb-8">
