@@ -5,150 +5,134 @@ const WeatherApp = () => {
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const searchWeather = async () => {
-    if (!city) {
+  const searchWeather = async (e) => {
+    e.preventDefault();
+
+    if (!city.trim()) {
       setError("Please enter a city name");
       return;
     }
 
     try {
+      setLoading(true);
       setError("");
 
       const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
 
       const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`,
+        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(
+          city
+        )}&appid=${API_KEY}&units=metric`
       );
+
+      const data = await response.json();
 
       if (!response.ok) {
         throw new Error("City not found");
       }
 
-      const data = await response.json();
-
       setWeather(data);
-    } catch (error) {
+    } catch (err) {
       setWeather(null);
-      setError(error.message);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-teal-800 flex items-center justify-center p-5">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-teal-800 flex items-center justify-center px-4 py-8">
 
-      <div className="w-full max-w-420px min-h-500px p-8 sm:p-9 rounded-3xl text-white bg-white/10 border border-white/20 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
+      <div className="w-full max-w-lg rounded-3xl bg-white/10 border border-white/20 backdrop-blur-xl p-5 sm:p-8 text-white shadow-2xl">
 
         {/* Title */}
-        <h1 className="text-center text-3xl font-bold tracking-wide text-teal-300 mb-8">
+        <h1 className="text-center text-3xl sm:text-4xl font-bold text-teal-300 mb-7">
           Weather App
         </h1>
 
         {/* Search */}
-        <div className="flex flex-col sm:flex-row gap-2.5 mb-5">
-
+        <form
+          onSubmit={searchWeather}
+          className="flex flex-col sm:flex-row gap-3 mb-5"
+        >
           <input
             type="text"
             placeholder="Enter city name..."
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            className="flex-1 px-4 py-3 rounded-xl border-none outline-none bg-white text-gray-900 placeholder-gray-500 text-sm"
+            className="flex-1 px-4 py-3 rounded-xl bg-white text-gray-900 outline-none placeholder-gray-500"
           />
 
           <button
-            onClick={searchWeather}
-            className="px-5 py-3 rounded-xl bg-teal-500 hover:bg-teal-600 text-white font-bold text-sm cursor-pointer transition duration-300 hover:-translate-y-0.5"
+            type="submit"
+            disabled={loading}
+            className="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-600 font-semibold transition disabled:opacity-60"
           >
-            Search
+            {loading ? "Loading..." : "Search"}
           </button>
-
-        </div>
+        </form>
 
         {/* Error */}
         {error && (
-          <p className="text-center text-red-300 bg-red-500/15 px-3 py-2.5 rounded-lg mb-4">
+          <p className="text-center text-red-300 bg-red-500/10 rounded-lg px-3 py-2 mb-5">
             {error}
           </p>
         )}
 
         {/* Weather */}
         {weather && (
-          <div className="text-center mt-6">
+          <div className="text-center">
 
-            {/* City */}
-            <h2 className="text-3xl font-semibold mb-1">
+            <h2 className="text-2xl sm:text-3xl font-semibold">
               {weather.name}
             </h2>
 
-            {/* Weather Icon */}
             <img
-              src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
+              src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@4x.png`}
               alt={weather.weather[0].description}
-              className="w-24 h-24 mx-auto"
+              className="w-28 h-28 sm:w-32 sm:h-32 mx-auto"
             />
 
-            {/* Temperature */}
-            <div className="text-[65px] font-bold text-teal-300 my-2">
+            <div className="text-6xl sm:text-7xl font-bold text-teal-300">
               {Math.round(weather.main.temp)}°C
             </div>
 
-            {/* Description */}
-            <p className="capitalize text-lg text-slate-300 mb-6">
+            <p className="capitalize text-slate-300 mt-3">
               {weather.weather[0].description}
             </p>
 
-            {/* Weather Details */}
-            <div className="grid grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-7">
 
-              {/* Feels Like */}
-              <div className="p-4 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/15 hover:-translate-y-1 transition duration-300">
-
-                <span className="text-2xl">
-                  🌡️
-                </span>
-
-                <p className="text-xs text-slate-300 my-2">
+              <div className="p-4 rounded-2xl bg-white/10 border border-white/10">
+                <div className="text-2xl">🌡️</div>
+                <p className="text-sm text-slate-400 mt-2">
                   Feels Like
                 </p>
-
-                <strong className="text-sm text-white">
+                <p className="font-semibold mt-1">
                   {Math.round(weather.main.feels_like)}°C
-                </strong>
-
+                </p>
               </div>
 
-              {/* Humidity */}
-              <div className="p-4 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/15 hover:-translate-y-1 transition duration-300">
-
-                <span className="text-2xl">
-                  💧
-                </span>
-
-                <p className="text-xs text-slate-300 my-2">
+              <div className="p-4 rounded-2xl bg-white/10 border border-white/10">
+                <div className="text-2xl">💧</div>
+                <p className="text-sm text-slate-400 mt-2">
                   Humidity
                 </p>
-
-                <strong className="text-sm text-white">
+                <p className="font-semibold mt-1">
                   {weather.main.humidity}%
-                </strong>
-
+                </p>
               </div>
 
-              {/* Wind */}
-              <div className="p-4 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/15 hover:-translate-y-1 transition duration-300">
-
-                <span className="text-2xl">
-                  💨
-                </span>
-
-                <p className="text-xs text-slate-300 my-2">
+              <div className="p-4 rounded-2xl bg-white/10 border border-white/10">
+                <div className="text-2xl">💨</div>
+                <p className="text-sm text-slate-400 mt-2">
                   Wind
                 </p>
-
-                <strong className="text-sm text-white">
+                <p className="font-semibold mt-1">
                   {weather.wind.speed} m/s
-                </strong>
-
+                </p>
               </div>
 
             </div>
